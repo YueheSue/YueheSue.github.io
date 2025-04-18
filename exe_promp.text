@@ -1,0 +1,8 @@
+Auto try different ways 3 times if encounter any issue, raise alert with voice 'BEEP BEEP' when need manual intervention.
+Here is the steps, don't take screenshot in any step:
+1. browser the website http://reg.cwikids.org/
+2. navigate to the '注册' page
+3. analysis the form, match with 'test_info.json' file, fill in form in a batch
+4. auto resolve the CAPTCHA with 2captcha, try to make screenshot only on CAPTCHA
+5. send SMS message
+6. don't close the browser, wait for next instruction with sound 'BEEP BEEP' as notification
