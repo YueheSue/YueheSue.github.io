@@ -659,7 +659,7 @@ function KidsFormPage({ userInfo, onLogout }) {
                   icon="refresh" 
                   style={{ marginLeft: '5px' }}
                   onClick={refreshMathCaptcha}>
-                  刷新
+                  获取验证码
                 </ElementReact.Button>
               </div>
               {formErrors.captchaImage && <div className="error-message">{formErrors.captchaImage}</div>}
@@ -675,7 +675,7 @@ function KidsFormPage({ userInfo, onLogout }) {
                   style={{ width: '65%' }}
                 />
                 <ElementReact.Button type="primary" size="small" style={{ marginLeft: '8px' }}>
-                  获取验证码
+                  进行登记
                 </ElementReact.Button>
               </div>
             </div>
