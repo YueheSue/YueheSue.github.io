@@ -234,6 +234,67 @@
 
 .el-select-dropdown__item {
   box-sizing: border-box;
+  font-size: 12px !important;
+  height: auto !important;
+  padding: 8px 12px !important;
+  white-space: normal !important;
+  line-height: 1.4 !important;
+  word-break: break-word;
+  display: block;
+  min-width: 200px !important;
+  overflow: visible;
+}
+
+/* Select dropdown styling */
+.el-select {
+  display: block !important;
+  position: relative !important;
+}
+
+.el-select > .el-input {
+  display: block;
+  width: 100% !important;
+}
+
+.el-select-dropdown.el-popper,
+.el-select-dropdown {
+  z-index: 3000 !important;
+  min-width: 200px !important; 
+  max-width: none !important;
+  width: auto !important;
+  overflow: visible !important;
+  margin-top: 5px;
+}
+
+.el-select-dropdown__list {
+  padding: 6px 0;
+  max-height: 274px;
+  overflow-y: auto;
+}
+
+.el-select-dropdown__wrap {
+  max-height: 274px !important;
+  overflow-y: auto !important;
+  overflow-x: hidden !important;
+}
+
+.el-select .el-input {
+  width: 100% !important;
+}
+
+/* Fix dropdown positioning */
+.el-popper {
+  min-width: 200px !important;
+  max-width: none !important;
+}
+
+/* Ensure popover is properly positioned */
+.el-popper[x-placement^="bottom"] {
+  margin-top: 5px;
+}
+
+.el-popper[x-placement^="top"] {
+  margin-bottom: 5px;
 }
 
 /* More compact form layout */
@@ -257,7 +318,7 @@
   max-width: 100%;
   position: relative;
   white-space: nowrap;
-  overflow: hidden;
+  overflow: visible;
 }
 
 .form-group label {
@@ -279,8 +340,9 @@
   flex: 1;
   min-width: 0;
   width: calc(100% - 92px);
-  overflow: hidden;
+  overflow: visible;
   white-space: nowrap;
+  position: relative;
 }
 
 @media (max-width: 1600px) {

@@ -7,7 +7,7 @@ import './App.css';
 
 // For React apps, we'll use a simpler approach without Element Plus components
 // since they aren't fully compatible with React out of the box
-function App({ onLogin }) {
+function App({ onLogin = null }) {
   const [formData, setFormData] = useState({
     username: '',
     password: '',
@@ -156,9 +156,13 @@ function App({ onLogin }) {
     // If everything is valid
     setSuccess(true);
     setError('');
+    setLoggedIn(true);
+    setUserInfo({ username: formData.username });
     
-    // Immediately call onLogin for router to handle redirection
-    onLogin({ username: formData.username });
+    // Only call onLogin if it's provided as a prop
+    if (typeof onLogin === 'function') {
+      onLogin({ username: formData.username });
+    }
   };
 
   const handleRefreshTextCaptcha = () => {

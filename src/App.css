@@ -1,0 +1,123 @@
+/* App.css - Basic styling for login demo */
+
+.app-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 100vh;
+  background-color: #f5f7fa;
+  padding: 20px;
+}
+
+.login-form {
+  width: 100%;
+  max-width: 420px;
+  background-color: white;
+  border-radius: 8px;
+  box-shadow: 0 2px 12px 0 rgba(0, 0, 0, 0.1);
+  padding: 30px;
+}
+
+.form-title {
+  text-align: center;
+  margin-bottom: 30px;
+  color: #303133;
+  font-size: 24px;
+}
+
+.el-form-item {
+  margin-bottom: 22px;
+}
+
+.el-form-item__label {
+  display: block;
+  margin-bottom: 8px;
+  font-weight: 500;
+  color: #606266;
+}
+
+.el-form-item__content {
+  width: 100%;
+}
+
+.el-input__inner {
+  width: 100%;
+  height: 40px;
+  line-height: 40px;
+  padding: 0 15px;
+  border: 1px solid #dcdfe6;
+  border-radius: 4px;
+  font-size: 14px;
+  color: #606266;
+  transition: border-color 0.2s;
+}
+
+.el-input__inner:focus {
+  border-color: #409eff;
+  outline: none;
+}
+
+.captcha-container {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 5px;
+}
+
+.captcha-input {
+  flex: 1;
+}
+
+.captcha-image {
+  height: 40px;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.refresh-icon {
+  cursor: pointer;
+  color: #409eff;
+  font-size: 20px;
+}
+
+.form-buttons {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 30px;
+}
+
+.el-button {
+  min-width: 100px;
+  height: 40px;
+  padding: 0 20px;
+  border: 1px solid #dcdfe6;
+  border-radius: 4px;
+  font-size: 14px;
+  cursor: pointer;
+  transition: all 0.3s;
+}
+
+.el-button--primary {
+  background-color: #409eff;
+  color: white;
+  border-color: #409eff;
+}
+
+.el-button--primary:hover {
+  background-color: #66b1ff;
+  border-color: #66b1ff;
+}
+
+.error-message {
+  color: #f56c6c;
+  font-size: 12px;
+  margin-top: 10px;
+  text-align: center;
+}
+
+.success-message {
+  color: #67c23a;
+  font-size: 14px;
+  margin-top: 10px;
+  text-align: center;
+} 
