@@ -17,7 +17,7 @@ const AppRoutes = ({ isAuthenticated, userInfo, handleLogout, handleLogin }) => 
           path="/" 
           element={
             isAuthenticated ? 
-              <Navigate to="/form/register" /> : 
+              <Navigate to="/form/kids" /> : 
               <App onLogin={handleLogin} />
           }
         />
@@ -25,7 +25,7 @@ const AppRoutes = ({ isAuthenticated, userInfo, handleLogout, handleLogin }) => 
           path="/register" 
           element={
             isAuthenticated ? 
-              <Navigate to="/form/register" /> : 
+              <Navigate to="/form/kids" /> : 
               <Navigate to="/" />
           } 
         />

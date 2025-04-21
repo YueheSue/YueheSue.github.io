@@ -1,26 +1,30 @@
-import React, { useState, useEffect, useRef } from 'react';
-import { 
-  Container, 
-  Paper, 
-  TextField, 
-  Button, 
-  Typography, 
-  Box,
-  Alert
-} from '@mui/material';
+import React, { useState, useEffect } from 'react';
+// Import styles directly
+import 'element-plus/dist/index.css';
+import './App.css';
+// Remove unused import
+// import FormFillPage from './FormFillPage';
 
-function App() {
+// For React apps, we'll use a simpler approach without Element Plus components
+// since they aren't fully compatible with React out of the box
+function App({ onLogin }) {
   const [formData, setFormData] = useState({
     username: '',
     password: '',
-    captchaAnswer: ''
+    textCaptchaAnswer: ''
   });
-  const [captcha, setCaptcha] = useState({ num1: 0, num2: 0 });
+  const [textCaptcha, setTextCaptcha] = useState({
+    text: '',
+    imageUrl: ''
+  });
   const [error, setError] = useState('');
   const [success, setSuccess] = useState(false);
-  const canvasRef = useRef(null);
+  // eslint-disable-next-line no-unused-vars
+  const [loggedIn, setLoggedIn] = useState(false);
+  // eslint-disable-next-line no-unused-vars
+  const [userInfo, setUserInfo] = useState(null);
 
-  // Generate random color for CAPTCHA noise
+  // Helper function to generate random color for CAPTCHA noise
   const getRandomColor = () => {
     const letters = '0123456789ABCDEF';
     let color = '#';
@@ -30,9 +34,11 @@ function App() {
     return color;
   };
 
-  // Draw CAPTCHA on canvas
-  const drawCaptcha = (num1, num2) => {
-    const canvas = canvasRef.current;
+  // Create Text CAPTCHA image
+  const createTextCaptchaImage = (text) => {
+    const canvas = document.createElement('canvas');
+    canvas.width = 180;
+    canvas.height = 70;
     const ctx = canvas.getContext('2d');
     
     // Clear canvas
@@ -66,9 +72,8 @@ function App() {
       ctx.fill();
     }
     
-    // Draw math equation
-    const text = `${num1} + ${num2} = ?`;
-    ctx.font = 'bold 28px Arial';
+    // Draw text
+    ctx.font = 'bold 24px Arial';
     ctx.fillStyle = '#000';
     ctx.textBaseline = 'middle';
     ctx.textAlign = 'center';
@@ -79,23 +84,44 @@ function App() {
     const centerY = canvas.height / 2;
     
     characters.forEach((char, i) => {
-      const x = centerX - (text.length * 10) + (i * 20);
+      const x = centerX - (text.length * 8) + (i * 16);
       const y = centerY + Math.sin(i * 0.5) * 5;
-      ctx.fillText(char, x, y);
+      // Add random rotation to each character
+      ctx.save();
+      ctx.translate(x, y);
+      ctx.rotate((Math.random() - 0.5) * 0.4);
+      ctx.fillText(char, 0, 0);
+      ctx.restore();
     });
+
+    // Convert canvas to image URL
+    return canvas.toDataURL('image/png');
   };
 
-  // Generate new captcha numbers
-  const generateCaptcha = () => {
-    const num1 = Math.floor(Math.random() * 10);
-    const num2 = Math.floor(Math.random() * 10);
-    setCaptcha({ num1, num2 });
-    drawCaptcha(num1, num2);
+  // Generate random string for text captcha
+  const generateRandomString = (length = 6) => {
+    const characters = 'ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnpqrstuvwxyz23456789';
+    let result = '';
+    for (let i = 0; i < length; i++) {
+      result += characters.charAt(Math.floor(Math.random() * characters.length));
+    }
+    return result;
+  };
+
+  // Generate new text captcha
+  const generateTextCaptcha = () => {
+    const text = generateRandomString(5);
+    
+    // Create image URL for the text captcha
+    const imageUrl = createTextCaptchaImage(text);
+    
+    setTextCaptcha({ text, imageUrl });
   };
 
   // Generate captcha on component mount
   useEffect(() => {
-    generateCaptcha();
+    generateTextCaptcha();
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const handleInputChange = (e) => {
@@ -111,124 +137,141 @@ function App() {
     e.preventDefault();
     
     // Validate all fields are filled
-    if (!formData.username || !formData.password || !formData.captchaAnswer) {
+    if (!formData.username || !formData.password || !formData.textCaptchaAnswer) {
       setError('Please fill in all fields');
       return;
     }
-
-    // Validate captcha
-    const correctAnswer = captcha.num1 + captcha.num2;
-    if (parseInt(formData.captchaAnswer) !== correctAnswer) {
-      setError('Incorrect CAPTCHA answer');
-      generateCaptcha();
-      setFormData(prev => ({ ...prev, captchaAnswer: '' }));
+    
+    // Validate text captcha
+    const correctTextAnswer = textCaptcha.text;
+    const userTextAnswer = formData.textCaptchaAnswer;
+    
+    if (userTextAnswer.toLowerCase() !== correctTextAnswer.toLowerCase()) {
+      setError('Incorrect text CAPTCHA answer');
+      generateTextCaptcha();
+      setFormData(prev => ({ ...prev, textCaptchaAnswer: '' }));
       return;
     }
 
     // If everything is valid
     setSuccess(true);
     setError('');
+    
+    // Immediately call onLogin for router to handle redirection
+    onLogin({ username: formData.username });
   };
 
-  const handleRefreshCaptcha = () => {
-    generateCaptcha();
-    setFormData(prev => ({ ...prev, captchaAnswer: '' }));
+  const handleRefreshTextCaptcha = () => {
+    generateTextCaptcha();
+    setFormData(prev => ({ ...prev, textCaptchaAnswer: '' }));
   };
 
+  // eslint-disable-next-line no-unused-vars
+  const handleLogout = () => {
+    setLoggedIn(false);
+    setSuccess(false);
+    setUserInfo(null);
+    setFormData({
+      username: '',
+      password: '',
+      textCaptchaAnswer: ''
+    });
+    generateTextCaptcha();
+  };
+  
   return (
-    <Container maxWidth="sm" sx={{ mt: 4 }}>
-      <Paper elevation={3} sx={{ p: 4 }}>
-        <Typography variant="h4" component="h1" gutterBottom align="center">
-          Login Demo
-        </Typography>
+    <div className="app-container">
+      <div className="login-form">
+        <h1 className="form-title">Login Demo</h1>
         
-        <form onSubmit={handleSubmit}>
-          <Box sx={{ mb: 2 }}>
-            <TextField
-              fullWidth
-              label="Username"
-              name="username"
-              value={formData.username}
-              onChange={handleInputChange}
-              variant="outlined"
-            />
-          </Box>
-
-          <Box sx={{ mb: 2 }}>
-            <TextField
-              fullWidth
-              label="Password"
-              name="password"
-              type="password"
-              value={formData.password}
-              onChange={handleInputChange}
-              variant="outlined"
-            />
-          </Box>
-
-          <Box sx={{ mb: 2 }}>
-            <Typography variant="body1" gutterBottom>
-              Solve the math CAPTCHA:
-            </Typography>
-            <Box sx={{ 
-              display: 'flex', 
-              flexDirection: 'column', 
-              alignItems: 'center',
-              mb: 2 
-            }}>
-              <canvas
-                ref={canvasRef}
-                width="200"
-                height="60"
-                style={{ 
-                  border: '1px solid #ccc',
-                  borderRadius: '4px',
-                  marginBottom: '10px'
-                }}
+        <form onSubmit={handleSubmit} className="el-form">
+          <div className="el-form-item">
+            <label className="el-form-item__label">Username</label>
+            <div className="el-form-item__content">
+              <input
+                type="text"
+                className="el-input__inner"
+                name="username"
+                value={formData.username}
+                onChange={handleInputChange}
+                placeholder="Enter username"
               />
-              <Button
-                size="small"
-                onClick={handleRefreshCaptcha}
-                sx={{ mb: 1 }}
-              >
-                Refresh CAPTCHA
-              </Button>
-            </Box>
-            <TextField
-              fullWidth
-              label="Enter the sum"
-              name="captchaAnswer"
-              type="number"
-              value={formData.captchaAnswer}
-              onChange={handleInputChange}
-              variant="outlined"
-            />
-          </Box>
+            </div>
+          </div>
+
+          <div className="el-form-item">
+            <label className="el-form-item__label">Password</label>
+            <div className="el-form-item__content">
+              <input
+                type="password"
+                className="el-input__inner"
+                name="password"
+                value={formData.password}
+                onChange={handleInputChange}
+                placeholder="Enter password"
+              />
+            </div>
+          </div>
+
+          <div className="captcha-section">
+            <h4>Type the text shown below:</h4>
+            <div className="captcha-container">
+              <div className="el-form-item captcha-input">
+                <div className="el-form-item__content">
+                  <input
+                    type="text"
+                    className="el-input__inner"
+                    name="textCaptchaAnswer"
+                    value={formData.textCaptchaAnswer}
+                    onChange={handleInputChange}
+                    placeholder="Enter the text"
+                  />
+                </div>
+              </div>
+              <div className="captcha-image-container">
+                <img
+                  src={textCaptcha.imageUrl}
+                  alt="Text CAPTCHA"
+                  className="captcha-image"
+                />
+                <button
+                  type="button"
+                  className="el-button el-button--default el-button--small"
+                  onClick={handleRefreshTextCaptcha}
+                >
+                  Refresh
+                </button>
+              </div>
+            </div>
+          </div>
 
           {error && (
-            <Box sx={{ mb: 2 }}>
-              <Alert severity="error">{error}</Alert>
-            </Box>
+            <div className="message-container el-alert el-alert--error">
+              <div className="el-alert__content">
+                <span className="el-alert__title">{error}</span>
+              </div>
+            </div>
           )}
 
           {success && (
-            <Box sx={{ mb: 2 }}>
-              <Alert severity="success">Login successful!</Alert>
-            </Box>
+            <div className="message-container el-alert el-alert--success">
+              <div className="el-alert__content">
+                <span className="el-alert__title">Login successful!</span>
+              </div>
+            </div>
           )}
 
-          <Button 
-            fullWidth 
-            variant="contained" 
-            color="primary" 
-            type="submit"
-            size="large"
-          >
-            Login
-          </Button>
+          <div className="button-container">
+            <button 
+              type="submit" 
+              className="el-button el-button--primary submit-button"
+            >
+              Login
+            </button>
+          </div>
         </form>
-      </Paper>
-    </Container>
+      </div>
+    </div>
   );
 }
 
