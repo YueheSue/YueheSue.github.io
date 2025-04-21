@@ -55,25 +55,21 @@ const AppRoutes = ({ isAuthenticated, userInfo, handleLogout, handleLogin }) => 
         />
         <Route 
           path="/form/kids" 
-          element={
-            isAuthenticated ? 
-              <KidsFormPage userInfo={userInfo} onLogout={handleLogout} /> : 
-              <Navigate to="/" />
-          } 
+          element={<KidsFormPage userInfo={userInfo} onLogout={handleLogout} />} 
         />
         <Route 
           path="/form/cwikids" 
-          element={
-            isAuthenticated ? 
-              <CWIKidsForm userInfo={userInfo} onLogout={handleLogout} /> : 
-              <Navigate to="/" />
-          } 
+          element={<CWIKidsForm userInfo={userInfo} onLogout={handleLogout} />} 
         />
         <Route 
           path="/direct/cwikids" 
           element={<DirectCWIKidsFormAccess />} 
         />
         <Route path="*" element={<Navigate to="/" />} />
+        
+        {/* Direct access shortcut routes */}
+        <Route path="/kids" element={<KidsFormPage userInfo={userInfo} onLogout={handleLogout} />} />
+        <Route path="/cwikids" element={<CWIKidsForm userInfo={userInfo} onLogout={handleLogout} />} />
       </Routes>
     </HashRouter>
   );
