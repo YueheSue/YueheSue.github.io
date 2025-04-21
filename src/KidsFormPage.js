@@ -169,37 +169,34 @@ function KidsFormPage({ userInfo, onLogout }) {
 
   // Memoize the generateMathCaptcha function to prevent infinite loop
   const generateMathCaptcha = useCallback(() => {
-    const operations = ['+', '-', '*', '/'];
+    const operations = ['+', '-', '*'];
     const operation = operations[Math.floor(Math.random() * operations.length)];
     
     let num1, num2, answer;
     
     // Generate numbers based on operation for appropriate difficulty
+    // All numbers are positive now
     switch (operation) {
       case '+':
-        num1 = Math.floor(Math.random() * 50) - 20; // -20 to 29
-        num2 = Math.floor(Math.random() * 50) - 20; // -20 to 29
+        num1 = Math.floor(Math.random() * 30) + 1; // 1 to 30
+        num2 = Math.floor(Math.random() * 30) + 1; // 1 to 30
         answer = num1 + num2;
         break;
       case '-':
-        num1 = Math.floor(Math.random() * 50) - 20; // -20 to 29
-        num2 = Math.floor(Math.random() * 50) - 20; // -20 to 29
+        // For subtraction, we'll allow any order, but both numbers are positive
+        num1 = Math.floor(Math.random() * 20) + 1; // 1 to 20
+        num2 = Math.floor(Math.random() * 20) + 1; // 1 to 20
+        // Allow negative answers - first number can be smaller than second
         answer = num1 - num2;
         break;
       case '*':
-        num1 = Math.floor(Math.random() * 12) - 5; // -5 to 6
-        num2 = Math.floor(Math.random() * 12) - 5; // -5 to 6
+        num1 = Math.floor(Math.random() * 10) + 1; // 1 to 10
+        num2 = Math.floor(Math.random() * 10) + 1; // 1 to 10
         answer = num1 * num2;
         break;
-      case '/':
-        // For division, ensure we get integers after division
-        num2 = Math.floor(Math.random() * 10) + 1; // 1 to 10
-        answer = Math.floor(Math.random() * 10) - 5; // -5 to 4
-        num1 = num2 * answer; // Makes sure division results in an integer
-        break;
       default:
-        num1 = Math.floor(Math.random() * 10);
-        num2 = Math.floor(Math.random() * 10);
+        num1 = Math.floor(Math.random() * 10) + 1;
+        num2 = Math.floor(Math.random() * 10) + 1;
         answer = num1 + num2;
     }
     
@@ -231,15 +228,52 @@ function KidsFormPage({ userInfo, onLogout }) {
   
   // Validate math captcha answer
   const validateMathCaptcha = (value) => {
+    // Simply compare the user's answer with the expected answer
     return value === mathCaptcha.answer;
   };
-  
+
+  // Refresh math captcha
+  const refreshMathCaptcha = () => {
+    // Clear any existing validation classes
+    const captchaInput = document.querySelector('input[name="captchaImage"]');
+    if (captchaInput) {
+      captchaInput.classList.remove('captcha-validated');
+      captchaInput.classList.remove('captcha-error');
+    }
+    // Generate new captcha
+    generateMathCaptcha();
+  };
+
   // Handle form input changes
   const handleChange = (key, value) => {
     const newForm = {
       ...form,
       [key]: value
     };
+    
+    // Auto-validate math captcha immediately when user types
+    if (key === 'captchaImage' && value) {
+      if (value === mathCaptcha.answer) {
+        // Provide visual feedback for correct answer
+        setTimeout(() => {
+          const captchaInput = document.querySelector('input[name="captchaImage"]');
+          if (captchaInput) {
+            captchaInput.classList.add('captcha-validated');
+            captchaInput.classList.remove('captcha-error');
+          }
+          ElementReact.Message.success('验证码正确');
+        }, 200);
+      } else if (value.length >= mathCaptcha.answer.length) {
+        // Only show error if user has typed enough characters
+        setTimeout(() => {
+          const captchaInput = document.querySelector('input[name="captchaImage"]');
+          if (captchaInput) {
+            captchaInput.classList.add('captcha-error');
+            captchaInput.classList.remove('captcha-validated');
+          }
+        }, 200);
+      }
+    }
     
     // Auto-fill based on ID number if it's a valid ID card number
     if (key === 'childIdNumber' && value && value.length === 18 && /^[0-9X]{18}$/.test(value)) {
@@ -298,6 +332,8 @@ function KidsFormPage({ userInfo, onLogout }) {
       errors.captchaImage = '请输入验证码';
     } else if (!validateMathCaptcha(form.captchaImage)) {
       errors.captchaImage = '验证码错误';
+      // Generate a new captcha if the answer was wrong
+      refreshMathCaptcha();
     }
     
     setFormErrors(errors);
@@ -596,6 +632,14 @@ function KidsFormPage({ userInfo, onLogout }) {
                   placeholder="请输入计算结果"
                   onChange={value => handleChange('captchaImage', value)}
                   style={{ width: '130px' }}
+                  name="captchaImage"
+                  className={
+                    form.captchaImage === mathCaptcha.answer && form.captchaImage !== '' 
+                      ? 'captcha-validated' 
+                      : formErrors.captchaImage 
+                        ? 'captcha-error' 
+                        : ''
+                  }
                 />
                 <div className="captcha-image">
                   {mathCaptcha.image && (
@@ -614,7 +658,7 @@ function KidsFormPage({ userInfo, onLogout }) {
                   type="text" 
                   icon="refresh" 
                   style={{ marginLeft: '5px' }}
-                  onClick={generateMathCaptcha}>
+                  onClick={refreshMathCaptcha}>
                   刷新
                 </ElementReact.Button>
               </div>
